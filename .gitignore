@@ -1,0 +1,16 @@
+target/
+debug/
+.DS_Store
+
+dist/
+gltf2ozz*
+gltf2fbx*
+
+*.glb
+*.gltf
+*.ozz
+*.txt
+*.xcf
+*.png
+*.fbx
+*.meshlet
