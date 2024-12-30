@@ -6,6 +6,7 @@ dist/
 gltf2ozz*
 gltf2fbx*
 
+*.bin
 *.glb
 *.gltf
 *.ozz

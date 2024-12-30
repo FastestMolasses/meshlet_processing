@@ -9,9 +9,9 @@ use bevy::{
     tasks::AsyncComputeTaskPool,
 };
 use std::fs;
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::Arc;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 const RED: &str = "\x1b[31m";
 const GREEN: &str = "\x1b[32m";
@@ -111,8 +111,14 @@ fn process_loaded_meshes(
                 if let Some(gltf_mesh) = gltf_mesh_assets.get(mesh) {
                     for primitive in gltf_mesh.primitives.iter() {
                         if let Some(mesh) = mesh_assets.get(&primitive.mesh) {
-                            let mesh = mesh.clone().with_removed_attribute(Mesh::ATTRIBUTE_TANGENT);
-                            let meshlet = MeshletMesh::from_mesh(&mesh, 4);
+                            let mesh = mesh
+                                .clone()
+                                .with_removed_attribute(Mesh::ATTRIBUTE_TANGENT)
+                                .with_removed_attribute(Mesh::ATTRIBUTE_COLOR)
+                                .with_removed_attribute(Mesh::ATTRIBUTE_JOINT_INDEX)
+                                .with_removed_attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT)
+                                .with_removed_attribute(Mesh::ATTRIBUTE_UV_1);
+                            let meshlet = MeshletMesh::from_mesh(&mesh, 1);
 
                             let stem = path.file_stem().unwrap();
                             let output_path = config
@@ -142,7 +148,7 @@ fn process_loaded_meshes(
                                                     None,
                                                 );
                                                 let erased = ErasedLoadedAsset::from(loaded_asset);
-                                                
+
                                                 match saver.save(&mut *write, &erased, &()).await {
                                                     Ok(_) => {
                                                         if let Err(e) = write.flush().await {
@@ -165,9 +171,7 @@ fn process_loaded_meshes(
                                 }
                                 Err(e) => eprintln!(
                                     "{}Failed to convert mesh to meshlet: {}{}",
-                                    RED,
-                                    e,
-                                    RESET
+                                    RED, e, RESET
                                 ),
                             }
                         }
@@ -186,11 +190,7 @@ fn process_loaded_meshes(
 
     // Exit when all files are processed and all tasks are complete
     if state.pending_files.is_empty() && state.active_tasks.load(Ordering::SeqCst) == 0 {
-        println!(
-            "\n{}All processing complete{}",
-            GREEN,
-            RESET
-        );
+        println!("\n{}All processing complete{}", GREEN, RESET);
         std::process::exit(0);
     }
 }
