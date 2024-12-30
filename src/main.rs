@@ -46,22 +46,17 @@ fn main() {
         .run();
 }
 
-fn setup_mesh_processing(
-    mut commands: Commands,
-    config: Res<MeshProcessingConfig>,
-    asset_server: Res<AssetServer>,
+fn queue_files_recursive(
+    dir: &PathBuf,
+    asset_server: &AssetServer,
+    pending_files: &mut Vec<(PathBuf, Handle<Gltf>)>,
 ) {
-    fs::create_dir_all(&config.output_dir).expect("Failed to create output directory");
-
-    let mut state = MeshProcessingState {
-        active_tasks: Arc::new(AtomicUsize::new(0)),
-        ..Default::default()
-    };
-
-    if let Ok(entries) = fs::read_dir(&config.input_dir) {
+    if let Ok(entries) = fs::read_dir(dir) {
         for entry in entries.flatten() {
             let path = entry.path();
-            if let Some(ext) = path.extension() {
+            if path.is_dir() {
+                queue_files_recursive(&path, asset_server, pending_files);
+            } else if let Some(ext) = path.extension() {
                 let ext = ext.to_string_lossy().to_lowercase();
                 if ext == "gltf" || ext == "glb" {
                     println!(
@@ -73,12 +68,24 @@ fn setup_mesh_processing(
                         RESET
                     );
                     let handle = asset_server.load(path.to_str().unwrap());
-                    state.pending_files.push((path, handle));
+                    pending_files.push((path, handle));
                 }
             }
         }
     }
+}
 
+fn setup_mesh_processing(
+    mut commands: Commands,
+    config: Res<MeshProcessingConfig>,
+    asset_server: Res<AssetServer>,
+) {
+    fs::create_dir_all(&config.output_dir).expect("Failed to create output directory");
+    let mut state = MeshProcessingState {
+        active_tasks: Arc::new(AtomicUsize::new(0)),
+        ..Default::default()
+    };
+    queue_files_recursive(&config.input_dir, &asset_server, &mut state.pending_files);
     commands.insert_resource(state);
 }
 
