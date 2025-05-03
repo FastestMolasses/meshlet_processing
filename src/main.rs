@@ -151,8 +151,7 @@ fn process_loaded_meshes(
                                             if let Ok(mut write) = writer.write(&output_path_clone).await {
                                                 let saver = MeshletMeshSaver;
                                                 let loaded_asset = LoadedAsset::new_with_dependencies(
-                                                    meshlet,
-                                                    None,
+                                                    meshlet
                                                 );
                                                 let erased = ErasedLoadedAsset::from(loaded_asset);
 

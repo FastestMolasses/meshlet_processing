@@ -29,7 +29,7 @@ codegen-units = 1
 strip = true
 
 [dependencies]
-bevy = { version = "0.15", features = [
+bevy = { version = "0.16", features = [
     "meshlet",
     "meshlet_processor",
     "bevy_pbr",

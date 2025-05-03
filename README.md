@@ -6,6 +6,9 @@ A simple command-line utility for converting GLTF/GLB meshes into Bevy's experim
 1. Create a directory called meshlet_source in your project root
 2. Place your GLTF/GLB files in the meshlet_source directory
 3. Run the script
+    ```bash
+    cargo run
+    ```
 4. Converted meshlet files will be output to a meshlets directory
 
 # Requirements
@@ -15,3 +18,6 @@ A simple command-line utility for converting GLTF/GLB meshes into Bevy's experim
     - UVs
     - Normals
     - Apply Modifiers (if using any)
+
+# Bevy Version
+This project is designed to work with Bevy 0.16.
